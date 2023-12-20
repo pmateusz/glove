@@ -1,0 +1,27 @@
+name: Release a git tag
+on:
+  workflow_dispatch:
+    inputs:
+      git_tag:
+        description: 'the git tag to publish'
+        type: string
+        required: true
+jobs:
+  check-branch:
+    uses: ./.github/workflows/check-branch.yaml
+    secrets: inherit
+  publish-tag:
+    needs: [ check-branch ]
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Create the git tag
+        run: |
+          git config --global user.name "Glove CI"
+          git config --global user.email "glove-ci@users.noreply.github.com"
+          git tag --annotate "${{ github.event.inputs.git_tag }}" --message "Version ${{ github.event.inputs.git_tag }}"
+          git push origin "${{ github.event.inputs.git_tag }}"
