@@ -1,0 +1,52 @@
+name: Build and publish a docker image
+on: [ workflow_dispatch ]
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+jobs:
+  build-image:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Export environment variables
+        run: |
+          echo BUILD_TIME=$(date --utc --iso-8601=seconds) >> $GITHUB_ENV
+          echo VCS_TAG=$(git describe --tags --abbrev 2>/dev/null || echo -n v0.0.0) >> $GITHUB_ENV
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          file: ./build/Dockerfile
+          push: true
+          provenance: mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VCS_COMMIT=${{ github.sha }}
+            VCS_BRANCH=${{ github.ref_name }}
+            VCS_TAG=${{ env.VCS_TAG }}
+            BUILD_TIME=${{ env.BUILD_TIME }}
+            BUILD_ENVIRONMENT=ci
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

@@ -1,0 +1,11 @@
+name: Build the master branch
+on:
+  push:
+    branches:
+      - master
+concurrency:
+  group: build-master-branch
+jobs:
+  check-branch:
+    uses: ./.github/workflows/check-branch.yaml
+    secrets: inherit
