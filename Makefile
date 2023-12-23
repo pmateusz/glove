@@ -20,12 +20,12 @@ endif
 ifndef BUILD_ENVIRONMENT
 	BUILD_ENVIRONMENT := local
 endif
-
-LDFLAGS = "-X glove/internal/version.commitHash=${VCS_COMMIT} \
--X glove/internal/version.branch=${VCS_BRANCH} \
--X glove/internal/version.version=${VCS_TAG} \
--X glove/internal/version.buildTime=${BUILD_TIME} \
--X glove/internal/version.environment=${BUILD_ENVIRONMENT}"
+VERSION_PACKAGE = "github.com/pmateusz/glove/internal/version"
+LDFLAGS = "-X ${VERSION_PACKAGE}.commitHash=${VCS_COMMIT} \
+-X ${VERSION_PACKAGE}.branch=${VCS_BRANCH} \
+-X ${VERSION_PACKAGE}.version=${VCS_TAG} \
+-X ${VERSION_PACKAGE}.buildTime=${BUILD_TIME} \
+-X ${VERSION_PACKAGE}.environment=${BUILD_ENVIRONMENT}"
 
 .PHONY: build clean cli deps-install deps-update format image lint test test-cover update
 
@@ -58,10 +58,11 @@ clean:
 	rm ./bin/glove
 
 image:
-	docker build \
+	docker buildx build --platform linux/amd64 \
 	--build-arg="VCS_COMMIT=${VCS_COMMIT}" \
 	--build-arg="VCS_BRANCH=${VCS_BRANCH}" \
 	--build-arg="VCS_TAG=${VCS_TAG}" \
 	--build-arg="BUILD_TIME=${BUILD_TIME}" \
 	--build-arg="BUILD_ENVIRONMENT=${BUILD_ENVIRONMENT}" \
-	-t glove -f ./build/Dockerfile .
+	-t glove -f ./build/Dockerfile . \
+	--load

@@ -5,6 +5,11 @@
 ARG GO_VERSION=1.21
 
 FROM golang:${GO_VERSION} as build-stage
+ARG TARGETOS
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG BUILDPLATFORM
+ARG VERSION_PACKAGE="github.com/pmateusz/glove/internal/version"
 ARG VCS_COMMIT
 ARG VCS_BRANCH
 ARG VCS_TAG
@@ -16,15 +21,15 @@ COPY internal /build/internal
 COPY pkg /build/pkg
 COPY go.mod /build
 RUN go mod tidy
-RUN go generate && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
- -ldflags="-X glove/internal/version.commitHash=${VCS_COMMIT} \
- -X glove/internal/version.branch=${VCS_BRANCH} \
- -X glove/internal/version.version=${VCS_TAG} \
- -X glove/internal/version.buildTime=${BUILD_TIME} \
- -X glove/internal/version.environment=${BUILD_ENVIRONMENT}" \
+RUN go generate && CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build \
+ -ldflags="-X ${VERSION_PACKAGE}.commitHash=${VCS_COMMIT} \
+ -X ${VERSION_PACKAGE}.branch=${VCS_BRANCH} \
+ -X ${VERSION_PACKAGE}.version=${VCS_TAG} \
+ -X ${VERSION_PACKAGE}.buildTime=${BUILD_TIME} \
+ -X ${VERSION_PACKAGE}.environment=${BUILD_ENVIRONMENT}" \
  -o glove ./cmd/glove/main.go
 
-FROM gcr.io/distroless/base-debian11 AS release-stage
+FROM gcr.io/distroless/base AS release-stage
 WORKDIR /
 COPY --from=build-stage /build/glove /glove
 EXPOSE 8080
