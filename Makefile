@@ -42,7 +42,7 @@ test:
 	go test ./...
 
 test-cover:
-	go test ./... -coverpkg=glove/internal/...,glove/pkg/... -coverprofile=coverage.out
+	go test ./... -coverpkg=github.com/pmateusz/glove/internal/...,github.com/pmateusz/glove/pkg/... -coverprofile=coverage.out
 
 deps-install:
 	go get ./...

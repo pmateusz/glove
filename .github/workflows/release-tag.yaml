@@ -1,17 +1,22 @@
-name: Release a git tag
+name: Release a Git Tag
 on:
   workflow_dispatch:
     inputs:
       git_tag:
-        description: 'the git tag to publish'
+        description: "Git tag"
         type: string
         required: true
 jobs:
-  check-branch:
-    uses: ./.github/workflows/check-branch.yaml
-    secrets: inherit
-  publish-tag:
-    needs: [ check-branch ]
+  lint-branch:
+    uses: ./.github/workflows/lint-branch.yaml
+    with:
+      go-version: 1.21
+  test-branch:
+    uses: ./.github/workflows/test-branch.yaml
+    with:
+      go-version: 1.21
+  release-tag:
+    needs: [ lint-branch, test-branch ]
     timeout-minutes: 5
     runs-on: ubuntu-latest
     permissions:
@@ -19,6 +24,8 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Create the git tag
         run: |
           git config --global user.name "Glove CI"

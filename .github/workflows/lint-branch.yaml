@@ -1,0 +1,38 @@
+name: Run Linter
+env:
+  shellcheck-version: "2023.1.6"
+on:
+  workflow_dispatch:
+    inputs:
+      go-version:
+        type: string
+        description: 'Go version'
+        required: true
+  workflow_call:
+    inputs:
+      go-version:
+        type: string
+        description: 'Go version'
+        required: true
+jobs:
+  lint:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Setup Go
+        id: setup-go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ inputs.go-version }}
+      - name: Run vet
+        run: "go vet ./..."
+      - name: Run shellcheck
+        uses: dominikh/staticcheck-action@v1.3.0
+        with:
+          install-go: false
+          version: ${{ env.shellcheck-version }}
+          cache-key: "${{ vars.GITHUB_JOB }}/go/${{ inputs.go-version }}/shellcheck/$shellcheck-version"

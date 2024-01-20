@@ -1,4 +1,4 @@
-name: Build and publish a docker image
+name: Release a Docker Image
 on: [ workflow_dispatch ]
 env:
   REGISTRY: ghcr.io
@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+            fetch-depth: 2
       - name: Export environment variables
         run: |
           echo BUILD_TIME=$(date --utc --iso-8601=seconds) >> $GITHUB_ENV

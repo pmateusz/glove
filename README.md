@@ -7,7 +7,7 @@ for processing HTTP/HTTPS traffic that is passing through the proxy.
 
 [![GitHub Test Badge][1]][2] [![codecov.io][3]][4] [![Goreport][5]][6] [![License][7]][8]
 
-[1]: https://github.com/pmateusz/glove/actions/workflows/build-master-branch.yaml/badge.svg "GitHub Test Badge"
+[1]: https://github.com/pmateusz/glove/actions/workflows/build-master.yaml/badge.svg "GitHub Test Badge"
 
 [2]: https://github.com/pmateusz/glove/actions "GitHub Actions Page"
 

@@ -1,0 +1,16 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+concurrency:
+  group: ci-master
+jobs:
+  lint-branch:
+    uses: ./.github/workflows/lint-branch.yaml
+    with:
+      go-version: 1.21
+  test-branch:
+    uses: ./.github/workflows/test-branch.yaml
+    with:
+      go-version: 1.21

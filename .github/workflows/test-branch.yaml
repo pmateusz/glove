@@ -1,0 +1,29 @@
+name: Run Tests
+on:
+  workflow_dispatch:
+    inputs:
+      go-version:
+        type: string
+        description: 'Go version'
+        required: true
+  workflow_call:
+    inputs:
+      go-version:
+        type: string
+        description: 'Go version'
+        required: true
+jobs:
+  branch:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ inputs.go-version }}
+      - name: Run tests
+        run: "go test ./..."

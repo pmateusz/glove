@@ -1,17 +1,19 @@
-name: Upload a code coverage report
-on: [workflow_dispatch]
+name: Upload a Code Cover Report
+on: [ workflow_dispatch ]
 jobs:
-  lint-and-test:
+  upload-code-cover:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.21"
-      - run: "go test ./... -coverpkg=glove/internal/...,glove/pkg/... -coverprofile=coverage.out"
-      - name: Upload coverage reports to Codecov
+          go-version: 1.21
+      - run: "go test ./... -coverpkg=github.com/pmateusz/glove/internal/...,github.com/pmateusz/glove/pkg/... -coverprofile=coverage.out"
+      - name: Upload the cover report to Codecov
         uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
